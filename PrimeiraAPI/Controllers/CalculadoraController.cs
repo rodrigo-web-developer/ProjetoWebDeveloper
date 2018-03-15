@@ -13,5 +13,11 @@ namespace PrimeiraAPI.Controllers
             var numero2 = double.Parse(valores["numero2"]);
             return numero1 + numero2;
         }
+
+        [HttpGet("subtrair")]
+        public double Subtrair(double numero1, double numero2)
+        {
+            return numero1 - numero2;
+        }
     }
 }
