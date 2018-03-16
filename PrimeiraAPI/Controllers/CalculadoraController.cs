@@ -19,5 +19,18 @@ namespace PrimeiraAPI.Controllers
         {
             return numero1 - numero2;
         }
+
+        [HttpPost("multiplicar")]
+        public object Multiplicar([FromBody] Dictionary<string, string> valores)
+        {
+            var numero1 = double.Parse(valores["numero1"]);
+            var numero2 = double.Parse(valores["numero2"]);
+            return new
+            {
+                Multiplicando = numero1,
+                Multiplicador = numero2,
+                Produto = numero1 * numero2
+            };
+        }
     }
 }
