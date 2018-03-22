@@ -16,6 +16,7 @@ namespace PrimeiraAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -25,7 +26,7 @@ namespace PrimeiraAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors(b => b.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
             app.UseMvc();
         }
     }
