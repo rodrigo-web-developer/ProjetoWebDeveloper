@@ -8,6 +8,8 @@ namespace PrimeiraAPI.Models
         public string Ra { get; set; } // propriedade
         public string Nome { get; set; } // propriedade
 
+        public Graduacao TipoGraduacao { get; set; }
+
         public DateTime DataNascimento { get; set; } // propriedade
         public int Idade
         { // propriedade com apenas get
@@ -20,5 +22,12 @@ namespace PrimeiraAPI.Models
                 return idade;
             }
         }
+    }
+
+    public enum Graduacao
+    {
+        Licenciatura, 
+        Tecnologo,
+        Bacharelado
     }
 }
