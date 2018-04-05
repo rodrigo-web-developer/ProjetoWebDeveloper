@@ -6,21 +6,21 @@ using System.Linq;
 namespace PrimeiraAPI.Controllers
 {
     [Route("api/[controller]")]
-    public class AlunoController : Controller
+    public class CursoController : Controller
     {
-        public static List<Aluno> Alunos = new List<Aluno>();
+        public static List<Curso> Cursos = new List<Curso>();
 
         [HttpGet("")]
-        public List<Aluno> Listar()
+        public List<Curso> Listar()
         {
-            return Alunos;
+            return Cursos;
         }
         [HttpPost("")]
-        public JsonResult Criar([FromBody] Aluno a)
+        public JsonResult Criar([FromBody] Curso a)
         {
             if (ModelState.IsValid)
             {
-                Alunos.Add(a);
+                Cursos.Add(a);
                 return new JsonResult(a);
             }
             else
@@ -31,13 +31,13 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPut("")]
-        public object Editar([FromBody] Aluno a)
+        public object Editar([FromBody] Curso a)
         {
             try
             {
-                var aluno = Alunos.First(x => x.Ra == a.Ra);
-                var indice = Alunos.IndexOf(aluno);
-                Alunos[indice] = a;
+                var Curso = Cursos.First(x => x.Codigo == a.Codigo);
+                var indice = Cursos.IndexOf(Curso);
+                Cursos[indice] = a;
                 return a;
             }
             catch (System.Exception ex)
@@ -47,12 +47,12 @@ namespace PrimeiraAPI.Controllers
             }
         }
 
-        [HttpDelete("{ra}")]
-        public Aluno Deletar(string ra)
+        [HttpDelete("{codigo}")]
+        public Curso Deletar(int codigo)
         {
-            var aluno = Alunos.First(x => x.Ra == ra);
-            Alunos.Remove(aluno);
-            return aluno;
+            var Curso = Cursos.First(x => x.Codigo == codigo);
+            Cursos.Remove(Curso);
+            return Curso;
         }
     }
 }
