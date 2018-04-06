@@ -31,19 +31,23 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPut("")]
-        public object Editar([FromBody] Aluno a)
+        public JsonResult Editar([FromBody] Aluno a)
         {
             try
             {
-                var aluno = Alunos.First(x => x.Ra == a.Ra);
-                var indice = Alunos.IndexOf(aluno);
-                Alunos[indice] = a;
-                return a;
+                if (ModelState.IsValid)
+                {
+                    var aluno = Alunos.First(x => x.Ra == a.Ra);
+                    var indice = Alunos.IndexOf(aluno);
+                    Alunos[indice] = a;
+                    return new JsonResult(a);
+                }
+                return new JsonResult(ModelState);
             }
             catch (System.Exception ex)
             {
                 Response.StatusCode = 422;
-                return new { MensagemErro = ex.Message };
+                return new JsonResult(new { MensagemErro = ex.Message });
             }
         }
 
@@ -53,6 +57,23 @@ namespace PrimeiraAPI.Controllers
             var aluno = Alunos.First(x => x.Ra == ra);
             Alunos.Remove(aluno);
             return aluno;
+        }
+
+        [HttpGet("media")]
+        public JsonResult Media()
+        {
+            return new JsonResult(
+             new {
+                 TotalAlunos = Alunos.Count,
+                 Media = Alunos.Average(a => a.Idade)
+             }    
+            );
+        }
+
+        [HttpGet("")]
+        public JsonResult FiltraPorNome(string nome)
+        {
+            // ...
         }
     }
 }

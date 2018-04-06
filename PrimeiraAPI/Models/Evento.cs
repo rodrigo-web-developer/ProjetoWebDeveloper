@@ -7,6 +7,11 @@ namespace PrimeiraAPI.Models
 {
     public class Evento
     {
+        public Evento()
+        {
+            Participantes = new List<Aluno>();
+        }
+        
         public int Codigo { get; set; }
         public DateTime Inicio { get; set; }
         public DateTime Fim { get; set; }
