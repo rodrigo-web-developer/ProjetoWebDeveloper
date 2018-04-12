@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LiteDB;
+using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +12,24 @@ namespace PrimeiraAPI.Controllers
         public static List<Curso> Cursos = new List<Curso>();
 
         [HttpGet("")]
-        public List<Curso> Listar()
+        public JsonResult Listar()
         {
-            return Cursos;
+            using (var banco = new LiteDatabase(@"..\BancoDados"))
+            {
+                var cursos = banco.GetCollection<Curso>().FindAll().ToList();
+                return new JsonResult(cursos);
+            }
         }
         [HttpPost("")]
-        public JsonResult Criar([FromBody] Curso a)
+        public JsonResult Criar([FromBody] Curso c)
         {
             if (ModelState.IsValid)
             {
-                Cursos.Add(a);
-                return new JsonResult(a);
+                using (var banco = new LiteDatabase(@"..\BancoDados"))
+                {
+                    banco.GetCollection<Curso>().Insert(c);
+                    return new JsonResult(c);
+                }
             }
             else
             {

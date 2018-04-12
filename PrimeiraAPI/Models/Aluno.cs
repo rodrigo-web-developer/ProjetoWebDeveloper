@@ -1,9 +1,10 @@
-﻿using System;
+﻿using PrimeiraAPI.Interfaces;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace PrimeiraAPI.Models
 {
-    public class Aluno
+    public class Aluno : INomeavel
     {
         private int idade; // campo
         [Required(ErrorMessage = "O campo RA é obrigatório")]
@@ -27,6 +28,11 @@ namespace PrimeiraAPI.Models
                     idade--;
                 return idade;
             }
+        }
+
+        public string DizerNome()
+        {
+            return $"Meu nome é {Nome}";
         }
     }
 

@@ -69,11 +69,6 @@ namespace PrimeiraAPI.Controllers
              }    
             );
         }
-
-        [HttpGet("")]
-        public JsonResult FiltraPorNome(string nome)
-        {
-            // ...
-        }
+        
     }
 }
