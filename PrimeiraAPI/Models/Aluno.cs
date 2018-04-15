@@ -1,4 +1,5 @@
-﻿using PrimeiraAPI.Interfaces;
+﻿using LiteDB;
+using PrimeiraAPI.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,6 +11,7 @@ namespace PrimeiraAPI.Models
         [Required(ErrorMessage = "O campo RA é obrigatório")]
         [StringLength(6, MinimumLength = 6, ErrorMessage = "O RA deve ter 6 dígitos")]
         [RegularExpression(@"\d{6}")]
+        [BsonId]
         public string Ra { get; set; } // propriedade
         [Required]
         public string Nome { get; set; } // propriedade
@@ -18,6 +20,7 @@ namespace PrimeiraAPI.Models
 
         public DateTime DataNascimento { get; set; } // propriedade
         [Range(18, 120)]
+        [BsonIgnore]
         public int Idade
         { // propriedade com apenas get
             get

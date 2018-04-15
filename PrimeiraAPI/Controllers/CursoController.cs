@@ -9,12 +9,10 @@ namespace PrimeiraAPI.Controllers
     [Route("api/[controller]")]
     public class CursoController : Controller
     {
-        public static List<Curso> Cursos = new List<Curso>();
-
         [HttpGet("")]
         public JsonResult Listar()
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados"))
+            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
             {
                 var cursos = banco.GetCollection<Curso>().FindAll().ToList();
                 return new JsonResult(cursos);
@@ -25,7 +23,7 @@ namespace PrimeiraAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(@"..\BancoDados"))
+                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
                 {
                     banco.GetCollection<Curso>().Insert(c);
                     return new JsonResult(c);
@@ -39,28 +37,42 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPut("")]
-        public object Editar([FromBody] Curso a)
+        public JsonResult Editar([FromBody] Curso c)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var Curso = Cursos.First(x => x.Codigo == a.Codigo);
-                var indice = Cursos.IndexOf(Curso);
-                Cursos[indice] = a;
-                return a;
+                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+                {
+                    banco.GetCollection<Curso>().Update(c);
+                    return new JsonResult(c);
+                }
             }
-            catch (System.Exception ex)
+            else
             {
                 Response.StatusCode = 422;
-                return new { MensagemErro = ex.Message };
+                return new JsonResult(ModelState);
             }
         }
 
         [HttpDelete("{codigo}")]
-        public Curso Deletar(int codigo)
+        public JsonResult Deletar(int codigo)
         {
-            var Curso = Cursos.First(x => x.Codigo == codigo);
-            Cursos.Remove(Curso);
-            return Curso;
+            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            {
+                var curso = banco.GetCollection<Curso>().FindById(codigo);
+                banco.GetCollection<Curso>().Delete(codigo);
+                return new JsonResult(curso);
+            }
+        }
+
+        [HttpGet("{codigo}")]
+        public JsonResult GetById(int codigo)
+        {
+            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            {
+                var curso = banco.GetCollection<Curso>().FindById(codigo);
+                return new JsonResult(curso);
+            }
         }
     }
 }
