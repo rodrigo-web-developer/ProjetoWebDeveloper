@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LiteDB;
+using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,75 +7,32 @@ using System.Linq;
 namespace PrimeiraAPI.Controllers
 {
     [Route("api/[controller]")]
-    public class EventoController : Controller
+    public class EventoController : ApiController<Evento>
     {
         public static List<Evento> Eventos = new List<Evento>();
-
         [HttpGet("")]
-        public List<Evento> Listar()
+        public JsonResult Listar()
         {
-            return Eventos;
-        }
-        [HttpPost("")]
-        public JsonResult Criar([FromBody] Evento a)
-        {
-            if (ModelState.IsValid)
+            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
             {
-                Eventos.Add(a);
-                return new JsonResult(a);
+                var eventos = banco.GetCollection<Evento>()
+                    .Include(e => e.Participantes)
+                    .FindAll().ToList();
+                return new JsonResult(eventos);
             }
-            else
-            {
-                Response.StatusCode = 422;
-                return new JsonResult(ModelState);
-            }
-        }
-
-        [HttpPut("")]
-        public object Editar([FromBody] Evento a)
-        {
-            try
-            {
-                var evento = Eventos.First(x => x.Codigo == a.Codigo);
-                var indice = Eventos.IndexOf(evento);
-                Eventos[indice] = a;
-                return a;
-            }
-            catch (System.Exception ex)
-            {
-                Response.StatusCode = 422;
-                return new { MensagemErro = ex.Message };
-            }
-        }
-
-        [HttpDelete("{codigo}")]
-        public Evento Deletar(int codigo)
-        {
-            var evento = Eventos.First(x => x.Codigo == codigo);
-            Eventos.Remove(evento);
-            return evento;
         }
 
         [HttpPut("{codigo}/[action]")]
         public JsonResult AdicionarParticipante(int codigo, [FromBody] Aluno a)
         {
-            var evento = Eventos.FirstOrDefault(e => e.Codigo == codigo);
-            if(evento == null)
+            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
             {
-                Response.StatusCode = 400;
-                return new JsonResult(new { MensagemErro = "Evento não encontrado" });
+                var colecao = banco.GetCollection<Evento>();
+                var evento = colecao.FindById(codigo);
+                evento.Participantes.Add(a);
+                colecao.Update(evento);
+                return new JsonResult(evento);
             }
-            var aluno = (from al in AlunoController.Alunos where al.Ra == a.Ra select al).FirstOrDefault();
-
-            if (aluno == null)
-            {
-                Response.StatusCode = 400;
-                return new JsonResult(new { MensagemErro = "Aluno não existe" });
-            }
-
-            evento.Participantes.Add(aluno);
-
-            return new JsonResult(evento);
         }
     }
 }
