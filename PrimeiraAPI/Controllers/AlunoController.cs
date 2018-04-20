@@ -11,21 +11,27 @@ namespace PrimeiraAPI.Controllers
     {
         public static List<Aluno> Alunos = new List<Aluno>();
 
+        private string ConnectionString;
+        public AlunoController(string connString)
+        {
+            ConnectionString = connString;
+        }
+
         [HttpGet("")]
         public JsonResult Listar()
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
                 var cursos = banco.GetCollection<Aluno>().FindAll().ToList();
                 return new JsonResult(cursos);
             }
         }
-        [HttpPost("")]
+
         public JsonResult Criar([FromBody] Aluno c)
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+                using (var banco = new LiteDatabase(ConnectionString))
                 {
                     banco.GetCollection<Aluno>().Insert(c);
                     return new JsonResult(c);
@@ -37,13 +43,12 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(ModelState);
             }
         }
-
-        [HttpPut("")]
+        
         public JsonResult Editar([FromBody] Aluno c)
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+                using (var banco = new LiteDatabase(ConnectionString))
                 {
                     banco.GetCollection<Aluno>().Update(c);
                     return new JsonResult(c);
@@ -55,24 +60,22 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(ModelState);
             }
         }
-
-        [HttpDelete("{ra}")]
-        public JsonResult Deletar(string ra)
+        
+        public JsonResult Deletar(string id)
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Aluno>().FindById(ra);
-                banco.GetCollection<Aluno>().Delete(ra);
+                var curso = banco.GetCollection<Aluno>().FindById(id);
+                banco.GetCollection<Aluno>().Delete(id);
                 return new JsonResult(curso);
             }
         }
-
-        [HttpGet("{ra}")]
-        public JsonResult GetById(string ra)
+        [HttpGet("{id}")]
+        public JsonResult GetById(string id)
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Aluno>().FindById(ra);
+                var curso = banco.GetCollection<Aluno>().FindById(id);
                 return new JsonResult(curso);
             }
         }
@@ -92,7 +95,7 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("relatorio")]
         public JsonResult Relatorio()
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
                 var alunos = banco.GetCollection<Aluno>().FindAll();
 

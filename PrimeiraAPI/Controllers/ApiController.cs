@@ -4,24 +4,27 @@ using System.Linq;
 
 namespace PrimeiraAPI.Controllers
 {
-    [Route("api/[controller]")]
     public class ApiController<Modelo> : Controller
     {
-        [HttpGet("")]
+        private string ConnectionString;
+        public ApiController(string connString)
+        {
+            ConnectionString = connString;
+        }
         public virtual JsonResult Listar()
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
                 var cursos = banco.GetCollection<Modelo>().FindAll().ToList();
                 return new JsonResult(cursos);
             }
         }
-        [HttpPost("")]
+
         public virtual JsonResult Criar([FromBody] Modelo c)
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+                using (var banco = new LiteDatabase(ConnectionString))
                 {
                     banco.GetCollection<Modelo>().Insert(c);
                     return new JsonResult(c);
@@ -33,13 +36,12 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(ModelState);
             }
         }
-
-        [HttpPut("")]
+        
         public virtual JsonResult Editar([FromBody] Modelo c)
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+                using (var banco = new LiteDatabase(ConnectionString))
                 {
                     banco.GetCollection<Modelo>().Update(c);
                     return new JsonResult(c);
@@ -51,24 +53,22 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(ModelState);
             }
         }
-
-        [HttpDelete("{codigo}")]
-        public virtual JsonResult Deletar(int codigo)
+        
+        public virtual JsonResult Deletar(int id)
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Modelo>().FindById(codigo);
-                banco.GetCollection<Modelo>().Delete(codigo);
+                var curso = banco.GetCollection<Modelo>().FindById(id);
+                banco.GetCollection<Modelo>().Delete(id);
                 return new JsonResult(curso);
             }
         }
-
-        [HttpGet("{codigo}")]
-        public JsonResult GetById(int codigo)
+        [HttpGet("{id:int}")]
+        public JsonResult GetById(int id)
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Modelo>().FindById(codigo);
+                var curso = banco.GetCollection<Modelo>().FindById(id);
                 return new JsonResult(curso);
             }
         }

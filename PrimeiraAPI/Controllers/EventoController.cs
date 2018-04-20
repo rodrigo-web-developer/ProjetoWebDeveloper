@@ -9,9 +9,12 @@ namespace PrimeiraAPI.Controllers
     [Route("api/[controller]")]
     public class EventoController : ApiController<Evento>
     {
+        public EventoController(string connString) : base(connString)
+        {
+        }
         public static List<Evento> Eventos = new List<Evento>();
         [HttpGet("")]
-        public JsonResult Listar()
+        public override JsonResult Listar()
         {
             using (var banco = new LiteDatabase(@"..\BancoDados.db"))
             {
