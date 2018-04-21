@@ -6,7 +6,7 @@ namespace PrimeiraAPI.Controllers
 {
     public class ApiController<Modelo> : Controller
     {
-        private string ConnectionString;
+        protected string ConnectionString;
         public ApiController(string connString)
         {
             ConnectionString = connString;
@@ -63,7 +63,7 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(curso);
             }
         }
-        [HttpGet("{id:int}")]
+
         public JsonResult GetById(int id)
         {
             using (var banco = new LiteDatabase(ConnectionString))

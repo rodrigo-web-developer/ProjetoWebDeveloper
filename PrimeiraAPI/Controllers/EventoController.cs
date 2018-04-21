@@ -6,17 +6,15 @@ using System.Linq;
 
 namespace PrimeiraAPI.Controllers
 {
-    [Route("api/[controller]")]
     public class EventoController : ApiController<Evento>
     {
         public EventoController(string connString) : base(connString)
         {
         }
-        public static List<Evento> Eventos = new List<Evento>();
-        [HttpGet("")]
+        
         public override JsonResult Listar()
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
                 var eventos = banco.GetCollection<Evento>()
                     .Include(e => e.Participantes)
@@ -25,10 +23,10 @@ namespace PrimeiraAPI.Controllers
             }
         }
 
-        [HttpPut("{codigo}/[action]")]
+        [HttpPut("api/[controller]/{codigo}/[action]")]
         public JsonResult AdicionarParticipante(int codigo, [FromBody] Aluno a)
         {
-            using (var banco = new LiteDatabase(@"..\BancoDados.db"))
+            using (var banco = new LiteDatabase(ConnectionString))
             {
                 var colecao = banco.GetCollection<Evento>();
                 var evento = colecao.FindById(codigo);

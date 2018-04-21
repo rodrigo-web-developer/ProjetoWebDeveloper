@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace PrimeiraAPI.Controllers
 {
-    [Route("api/[controller]")]
     public class AlunoController : Controller
     {
         public static List<Aluno> Alunos = new List<Aluno>();
@@ -16,8 +15,7 @@ namespace PrimeiraAPI.Controllers
         {
             ConnectionString = connString;
         }
-
-        [HttpGet("")]
+        
         public JsonResult Listar()
         {
             using (var banco = new LiteDatabase(ConnectionString))
@@ -70,17 +68,16 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(curso);
             }
         }
-        [HttpGet("{id}")]
-        public JsonResult GetById(string id)
+        [HttpGet("api/aluno/{ra}")]
+        public JsonResult GetAluno(string ra)
         {
             using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Aluno>().FindById(id);
+                var curso = banco.GetCollection<Aluno>().FindById(ra);
                 return new JsonResult(curso);
             }
         }
-
-        [HttpGet("media")]
+        
         public JsonResult Media()
         {
             return new JsonResult(

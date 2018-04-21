@@ -40,9 +40,9 @@ namespace PrimeiraAPI
                     action = "Listar"
                 }, new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("GET") }));
 
-                //routes.MapRoute("defaultGetWithId", "api/{controller}/{id}",
-                //    new { action = "GetById" },
-                //    new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("GET") }));
+                routes.MapRoute("defaultGetWithId", "api/{controller}/{id:int}",
+                    new { action = "GetById" },
+                    new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("GET") }));
 
                 routes.MapRoute("defaultPost", "api/{controller}", new
                 {
