@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using PrimeiraAPI.Autenticacao;
+using System;
 
 namespace PrimeiraAPI
 {
@@ -21,6 +26,42 @@ namespace PrimeiraAPI
             services.AddMvc();
             services.AddCors();
             services.AddSingleton<string>(Configuration.GetConnectionString("LiteDB"));
+
+
+            var configuracaoAcesso = new ConfiguracaoAcesso();
+            services.AddSingleton(configuracaoAcesso);
+
+            var configuracaoToken = new ConfiguracaoToken();
+
+
+            new ConfigureFromConfigurationOptions<ConfiguracaoToken>
+                (Configuration.GetSection("ConfiguracaoToken")).Configure(configuracaoToken);
+
+            services.AddSingleton(configuracaoToken);
+
+            services.AddAuthentication(opcoes =>
+            {
+                opcoes.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opcoes.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(bearer =>
+            {
+                var parametrosValidacao = bearer.TokenValidationParameters;
+                parametrosValidacao.IssuerSigningKey = configuracaoAcesso.Key;
+                parametrosValidacao.ValidAudience = configuracaoToken.Audience;
+                parametrosValidacao.ValidIssuer = configuracaoToken.Issuer;
+
+                parametrosValidacao.ValidateIssuerSigningKey = true;
+                parametrosValidacao.ValidateLifetime = true;
+
+                parametrosValidacao.ClockSkew = TimeSpan.Zero;
+            });
+
+
+            services.AddAuthorization(auth => {
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser().Build());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,8 +99,8 @@ namespace PrimeiraAPI
                 {
                     action = "Deletar"
                 }, new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("DELETE") }));
-                
-                routes.MapRoute(name: "qualquerOutroMetodo", template:"api/{controller}/{action}");
+
+                routes.MapRoute(name: "qualquerOutroMetodo", template: "api/{controller}/{action}");
             });
         }
     }

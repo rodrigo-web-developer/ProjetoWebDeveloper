@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
 using System.Collections.Generic;
@@ -8,8 +9,6 @@ namespace PrimeiraAPI.Controllers
 {
     public class AlunoController : Controller
     {
-        public static List<Aluno> Alunos = new List<Aluno>();
-
         private string ConnectionString;
         public AlunoController(string connString)
         {
@@ -24,7 +23,7 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(cursos);
             }
         }
-
+        [Authorize(Roles = "Admin")]
         public JsonResult Criar([FromBody] Aluno c)
         {
             if (ModelState.IsValid)
@@ -68,28 +67,17 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(curso);
             }
         }
-        [HttpGet("api/aluno/{ra}")]
-        public JsonResult GetAluno(string ra)
+
+        [HttpGet("api/[controller]/{id:regex(\\d{{6}})}")]
+        public JsonResult GetById(string id)
         {
             using (var banco = new LiteDatabase(ConnectionString))
             {
-                var curso = banco.GetCollection<Aluno>().FindById(ra);
+                var curso = banco.GetCollection<Aluno>().FindById(id);
                 return new JsonResult(curso);
             }
         }
         
-        public JsonResult Media()
-        {
-            return new JsonResult(
-             new
-             {
-                 TotalAlunos = Alunos.Count,
-                 Media = Alunos.Average(a => a.Idade)
-             }
-            );
-        }
-
-        [HttpGet("relatorio")]
         public JsonResult Relatorio()
         {
             using (var banco = new LiteDatabase(ConnectionString))
