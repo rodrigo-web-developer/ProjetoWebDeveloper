@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
 using System.Collections.Generic;
@@ -34,6 +35,12 @@ namespace PrimeiraAPI.Controllers
                 colecao.Update(evento);
                 return new JsonResult(evento);
             }
+        }
+
+        [Authorize("Bearer")]
+        public override JsonResult Criar([FromBody] Evento c)
+        {
+            return base.Criar(c);
         }
     }
 }
