@@ -26,8 +26,21 @@ namespace PrimeiraAPI.Controllers
             {
                 using (var banco = new LiteDatabase(ConnectionString))
                 {
-                    banco.GetCollection<Modelo>().Insert(c);
-                    return new JsonResult(c);
+                    try
+                    {
+
+                        banco.GetCollection<Modelo>().Insert(c);
+                        return new JsonResult(c);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Response.StatusCode = 422;
+                        return new JsonResult(new
+                        {
+                            Command = "Insert",
+                            MensagemErro = ex.Message
+                        });
+                    }
                 }
             }
             else

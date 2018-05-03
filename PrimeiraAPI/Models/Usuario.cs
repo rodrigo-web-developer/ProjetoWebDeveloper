@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrimeiraAPI.Validacoes;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrimeiraAPI.Models
 {
@@ -10,7 +11,7 @@ namespace PrimeiraAPI.Models
         public string Email { get; set; }
         [Required]
         public string Senha { get; set; }
-        
+        [Cpf]
         public string Cpf { get; set; }
 
         public TipoUsuario Tipo { get; set; }

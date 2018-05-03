@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PrimeiraAPI.Autenticacao;
@@ -43,7 +44,8 @@ namespace PrimeiraAPI.Controllers
                             var identidade = new ClaimsIdentity(
                                 new[] {
                                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                                new Claim(ClaimTypes.Role, usuario.Tipo.ToString())
+                                new Claim(ClaimTypes.Role, usuario.Tipo.ToString()),
+                                new Claim("IdUsuario", usuario.Id.ToString())
                             }, "Bearer", "Bearer", usuario.Tipo.ToString());
 
                             var handler = new JwtSecurityTokenHandler();
@@ -86,6 +88,36 @@ namespace PrimeiraAPI.Controllers
                 }
             }
             return base.Criar(c);
+        }
+
+        [Authorize("Bearer")]
+        public JsonResult Perfil()
+        {
+            var payload = GetPayload();
+
+            var userId = int.Parse(payload["IdUsuario"].ToString());
+
+            using (var banco = new LiteDatabase(ConnectionString))
+            {
+                var usuario = banco.GetCollection<Usuario>().FindById(userId);
+                return new JsonResult(new {
+                    usuario.Email,
+                    usuario.Id
+                });
+            }
+        }
+
+        protected string GetToken()
+        {
+            return Request.Headers["Authorization"];
+        }
+
+        protected JwtPayload GetPayload()
+        {
+            var tokenString = GetToken().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(tokenString);
+            return token.Payload;
         }
     }
 }

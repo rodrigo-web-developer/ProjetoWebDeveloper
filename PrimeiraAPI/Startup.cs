@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
 using PrimeiraAPI.Autenticacao;
 using System;
 
@@ -62,6 +64,8 @@ namespace PrimeiraAPI
                     .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser().Build());
             });
+
+            Database.Configuration.Configure(Configuration.GetConnectionString("LiteDB"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -101,6 +105,11 @@ namespace PrimeiraAPI
                 }, new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("DELETE") }));
 
                 routes.MapRoute(name: "qualquerOutroMetodo", template: "api/{controller}/{action}");
+            })
+            .Run(async (context) =>
+            {
+                context.Response.ContentType = "text/html; charset=utf-8";
+                await context.Response.WriteAsync("<h1 align=\"center\">--- API está em execução! ---</h1>");
             });
         }
     }
