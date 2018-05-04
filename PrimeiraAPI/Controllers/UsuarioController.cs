@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PrimeiraAPI.Autenticacao;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Services;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,10 +16,12 @@ namespace PrimeiraAPI.Controllers
     public class UsuarioController : ApiController<Usuario>
     {
         private readonly string ChaveCriptografia = "77834a37-6eaa-49d8-a243-589a5f143dd5";
+        public string ConnectionString { get; set; }
         public ConfiguracaoAcesso Acesso { get; set; }
         public ConfiguracaoToken Token { get; set; }
-        public UsuarioController(string connString, ConfiguracaoToken configToken, ConfiguracaoAcesso configAcesso) : base(connString)
+        public UsuarioController(UsuarioService servico, ConfiguracaoToken configToken, ConfiguracaoAcesso configAcesso) : base(servico)
         {
+            ConnectionString = servico.ConnectionString;
             Token = configToken;
             Acesso = configAcesso;
         }

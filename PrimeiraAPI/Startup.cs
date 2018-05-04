@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using PrimeiraAPI.Autenticacao;
+using PrimeiraAPI.Services;
 using System;
 
 namespace PrimeiraAPI
@@ -28,6 +29,9 @@ namespace PrimeiraAPI
             services.AddMvc();
             services.AddCors();
             services.AddSingleton<string>(Configuration.GetConnectionString("LiteDB"));
+            services.AddSingleton(typeof(CrudService<>), typeof(CrudService<>));
+            services.AddTransient<UsuarioService>();
+            services.AddTransient<EventoService>();
 
 
             var configuracaoAcesso = new ConfiguracaoAcesso();
@@ -80,6 +84,14 @@ namespace PrimeiraAPI
 
             app.UseMvc(routes =>
             {
+                routes.MapRoute(name: "indexApi",
+                    template: "",
+                    defaults: new
+                    {
+                        controller = "Custom",
+                        action = "Index"
+                    });
+
                 routes.MapRoute("defaultGet", "api/{controller}/", new
                 {
                     action = "Listar"
@@ -105,11 +117,15 @@ namespace PrimeiraAPI
                 }, new RouteValueDictionary(new { httpMethod = new HttpMethodRouteConstraint("DELETE") }));
 
                 routes.MapRoute(name: "qualquerOutroMetodo", template: "api/{controller}/{action}");
-            })
-            .Run(async (context) =>
-            {
-                context.Response.ContentType = "text/html; charset=utf-8";
-                await context.Response.WriteAsync("<h1 align=\"center\">--- API está em execução! ---</h1>");
+
+
+                routes.MapRoute(name: "notfoundpage",
+                    template: "{*url}",
+                    defaults: new
+                    {
+                        controller = "Custom",
+                        action = "Http404NotFound"
+                    });
             });
         }
     }

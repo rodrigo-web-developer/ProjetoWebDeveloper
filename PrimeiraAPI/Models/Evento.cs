@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using PrimeiraAPI.Validacoes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace PrimeiraAPI.Models
         public string Nome { get; set; }
         public string Descricao { get; set; }
         [BsonRef]
-        public List<Aluno> Participantes { get; set; }
+        [ListSize(1)]
+        public IList<Aluno> Participantes { get; set; }
     }
 }

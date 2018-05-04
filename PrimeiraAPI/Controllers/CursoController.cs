@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Services;
 
 namespace PrimeiraAPI.Controllers
 {
     public class CursoController : ApiController<Curso>
     {
-        public CursoController(string connString) : base(connString)
+        public CursoController(CrudService<Curso> servico) : base(servico)
         {
         }
         [Authorize("Bearer", Roles = "Admin")]

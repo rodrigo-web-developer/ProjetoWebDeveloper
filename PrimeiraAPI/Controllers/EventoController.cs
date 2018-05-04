@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
+using PrimeiraAPI.Services;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,21 +10,12 @@ namespace PrimeiraAPI.Controllers
 {
     public class EventoController : ApiController<Evento>
     {
-        public EventoController(string connString) : base(connString)
+        public string ConnectionString { get; set; }
+        public EventoController(CrudService<Evento> servico) : base(servico)
         {
+            ConnectionString = servico.ConnectionString;
         }
         
-        public override JsonResult Listar()
-        {
-            using (var banco = new LiteDatabase(ConnectionString))
-            {
-                var eventos = banco.GetCollection<Evento>()
-                    .Include(e => e.Participantes)
-                    .FindAll().ToList();
-                return new JsonResult(eventos);
-            }
-        }
-
         [HttpPut("api/[controller]/{codigo}/[action]")]
         public JsonResult AdicionarParticipante(int codigo, [FromBody] Aluno a)
         {
@@ -37,9 +29,14 @@ namespace PrimeiraAPI.Controllers
             }
         }
 
-        [Authorize("Bearer")]
+        //[Authorize("Bearer")]
         public override JsonResult Criar([FromBody] Evento c)
         {
+            var ignorar = ModelState.Keys.Where(k => k.StartsWith("Participantes"));
+            foreach (var ignora in ignorar)
+            {
+                ModelState.Remove(ignora);
+            }
             return base.Criar(c);
         }
     }

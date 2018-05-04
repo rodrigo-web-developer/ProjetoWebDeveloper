@@ -1,47 +1,36 @@
-﻿using LiteDB;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
+using PrimeiraAPI.Services;
 
 namespace PrimeiraAPI.Controllers
 {
-    public class ApiController<Modelo> : Controller
+    public class ApiController<Modelo> : Controller where Modelo: class
     {
-        protected string ConnectionString;
-        public ApiController(string connString)
+        public CrudService<Modelo> Servico { get; set; }
+        public ApiController(CrudService<Modelo> servico)
         {
-            ConnectionString = connString;
+            Servico = servico;
         }
         public virtual JsonResult Listar()
         {
-            using (var banco = new LiteDatabase(ConnectionString))
-            {
-                var cursos = banco.GetCollection<Modelo>().FindAll().ToList();
-                return new JsonResult(cursos);
-            }
+            return new JsonResult(Servico.List());
         }
-
+        /// <summary>
+        /// Método do controller usado para criar um novo
+        /// registro no banco de dados, recebendo o modelo
+        /// no formato JSON por parâmetro
+        /// </summary>
+        /// <param name="c">Modelo serializado através do body no formato JSON</param>
+        /// <returns>Retorna um JSON contendo o modelo cadastrado no banco</returns>
         public virtual JsonResult Criar([FromBody] Modelo c)
         {
+            /*
+             * Verifica se o modelo é valido
+             * validando cada um dos atributos
+             * do modelo
+             */
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(ConnectionString))
-                {
-                    try
-                    {
-
-                        banco.GetCollection<Modelo>().Insert(c);
-                        return new JsonResult(c);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Response.StatusCode = 422;
-                        return new JsonResult(new
-                        {
-                            Command = "Insert",
-                            MensagemErro = ex.Message
-                        });
-                    }
-                }
+                return new JsonResult(Servico.Criar(c));
             }
             else
             {
@@ -54,11 +43,7 @@ namespace PrimeiraAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                using (var banco = new LiteDatabase(ConnectionString))
-                {
-                    banco.GetCollection<Modelo>().Update(c);
-                    return new JsonResult(c);
-                }
+                return new JsonResult(Servico.Editar(c));
             }
             else
             {
@@ -69,21 +54,12 @@ namespace PrimeiraAPI.Controllers
         
         public virtual JsonResult Deletar(int id)
         {
-            using (var banco = new LiteDatabase(ConnectionString))
-            {
-                var curso = banco.GetCollection<Modelo>().FindById(id);
-                banco.GetCollection<Modelo>().Delete(id);
-                return new JsonResult(curso);
-            }
+            return new JsonResult(Servico.Excluir(id));
         }
 
         public JsonResult GetById(int id)
         {
-            using (var banco = new LiteDatabase(ConnectionString))
-            {
-                var curso = banco.GetCollection<Modelo>().FindById(id);
-                return new JsonResult(curso);
-            }
+            return new JsonResult(Servico.Retorna(id));
         }
     }
 }
