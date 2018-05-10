@@ -81,15 +81,6 @@ namespace PrimeiraAPI.Controllers
 
         public override JsonResult Criar([FromBody] Usuario c)
         {
-            if (!string.IsNullOrEmpty(c.Senha))
-            {
-                using (var cripto = new HMACSHA256(Encoding.UTF8.GetBytes(ChaveCriptografia)))
-                {
-                    var encode = Encoding.UTF8.GetBytes(c.Senha);
-                    var password = cripto.ComputeHash(encode);
-                    c.Senha = BitConverter.ToString(password);
-                }
-            }
             return base.Criar(c);
         }
 
