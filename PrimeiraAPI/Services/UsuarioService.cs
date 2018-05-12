@@ -27,6 +27,7 @@ namespace PrimeiraAPI.Services
                     model.Senha = BitConverter.ToString(password);
                 }
             }
+            model.CreatedAt = model.CreatedAt ?? DateTime.Now;
             return base.Criar(model);
         }
     }

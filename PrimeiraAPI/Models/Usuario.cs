@@ -1,4 +1,5 @@
 ﻿using PrimeiraAPI.Validacoes;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace PrimeiraAPI.Models
@@ -7,16 +8,11 @@ namespace PrimeiraAPI.Models
     {
         private string _email;
         public int Id { get; set; }
+        public DateTime? CreatedAt { get; set; }
         [Required]
         [EmailAddress]
-        public string Email
-        {
-            get
-            {
-                return _email;
-            }
-            set
-            {
+        public string Email { get => _email;
+            set {
                 if (string.IsNullOrEmpty(value))
                 {
                     _email = value;

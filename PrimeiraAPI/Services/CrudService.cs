@@ -12,6 +12,7 @@ namespace PrimeiraAPI.Services
         public CrudService(string connString)
         {
             ConnectionString = connString;
+            Mensagens = new List<Erro>();
         }
         public virtual List<T> List()
         {
@@ -32,6 +33,11 @@ namespace PrimeiraAPI.Services
                 }
                 catch (Exception ex)
                 {
+                    Mensagens.Add(new Erro
+                    {
+                        Comando = "Insert",
+                        Mensagem = ex.Message
+                    });
                     return null;
                 }
             }

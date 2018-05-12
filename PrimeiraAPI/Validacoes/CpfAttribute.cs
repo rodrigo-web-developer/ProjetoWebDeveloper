@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace PrimeiraAPI.Validacoes
 {
@@ -31,6 +32,14 @@ namespace PrimeiraAPI.Validacoes
             cpf = cpf.Replace(".", "").Replace("-", "");
             if (cpf.Length != 11)
                 return false;
+
+            // (\d)\1{10}
+
+            if (cpf.All(c => c == cpf[0]))
+            {
+                return false;
+            }
+
             tempCpf = cpf.Substring(0, 9);
             soma = 0;
 

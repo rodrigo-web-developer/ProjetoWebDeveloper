@@ -1,6 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using LiteDB;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PrimeiraAPI.Database;
 using PrimeiraAPI.Models;
 using PrimeiraAPI.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,6 +13,15 @@ namespace ProjetoTeste
     [TestClass]
     public class UsuarioTeste
     {
+        private readonly string ConnString = @"..\BancoDados.db";
+        public DateTime DataCriacaoTestes = new DateTime(3000, 4, 1);
+        private UsuarioService Service;
+        [TestInitialize]
+        public void Setup()
+        {
+            Service = new UsuarioService(ConnString);
+        }
+
         [TestMethod]
         public void TestarAtribuicaoEmail()
         {
@@ -24,7 +36,6 @@ namespace ProjetoTeste
             var u = new Usuario();
             var validacao = new ValidationContext(u, serviceProvider: null, items: null);
             var results = new List<ValidationResult>();
-
             Validator.TryValidateObject(u, validacao, results);
 
             Assert.IsTrue(results.Any(), "Nenhum erro encontrado");
@@ -35,32 +46,51 @@ namespace ProjetoTeste
         [TestMethod]
         public void TestarCriacao()
         {
+            Configuration.Configure(ConnString);
             var u = new Usuario()
             {
-                Email = "email@email.com",
-                Senha = "senha1"
+                Email = "teste1@teste.com",
+                Senha = "senha1",
+                CreatedAt = DataCriacaoTestes
             };
-            var usuarioService = new UsuarioService(@"..\BancoDados.db");
-            var usuario = usuarioService.Criar(u);
+            var usuario = Service.Criar(u);
             Assert.IsNotNull(usuario, "Falhou na criacao: " +
-                usuarioService.Mensagens?.Select(m => m.Mensagem).ToArray());
+                string.Join("\n", Service.Mensagens.Select(m => m.Mensagem).ToArray()));
 
             Assert.AreNotEqual(u.Senha, "senha1", "Não criptografou a senha");
         }
 
         [TestMethod]
+        public void TesteCarga()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                var u = new Usuario()
+                {
+                    Email = $"teste_{i}teste.com",
+                    Senha = "senha1",
+                    CreatedAt = DataCriacaoTestes
+                };
+                var usuario = Service.Criar(u);
+                Assert.IsNotNull(usuario, "Falhou na criacao: " +
+                    string.Join("\n", Service.Mensagens.Select(m => m.Mensagem).ToArray()));
+
+                Assert.AreNotEqual(u.Senha, "senha1", "Não criptografou a senha");
+            }
+        }
+
+
+        [TestMethod]
         public void ExcluirUsuarios()
         {
             TestarCriacao();
-            var usuarioService = new UsuarioService(@"..\BancoDados.db");
 
-            var usuarios = usuarioService.List().Where(u => u.Email == "email@email.com");
-
+            var usuarios = Service.List().Where(u => u.Email == "teste1@teste.com");
             Assert.AreNotEqual(usuarios.Count(), 0, "Nao retornou nenhum usuario");
 
             foreach (var u in usuarios)
             {
-                var x = usuarioService.Excluir(u.Id);
+                var x = Service.Excluir(u.Id);
                 Assert.IsNotNull(x, "Não foi possível excluir o usuário");
             }
         }
@@ -68,22 +98,33 @@ namespace ProjetoTeste
         [TestMethod]
         public void TestarValidacaoCpf()
         {
-            var u = new Usuario { Email = "BLA@EMAIL.COM", Senha = "123123", Cpf = "12345678910" };
+            var u = new Usuario { Cpf = "11111111111" };
             var validacao = new ValidationContext(u);
+            validacao.MemberName = "Cpf";
             var service = validacao.GetService(typeof(Usuario));
             try
             {
-                Validator.ValidateObject(u, validacao, true);
+                Validator.ValidateProperty(u.Cpf, validacao);
                 Assert.IsTrue(false, "Nenhum erro encontrado");
             }
-            catch (System.Exception ex)
+            catch (ValidationException ex)
             {
-
                 Assert.IsTrue(true, "Nenhum erro encontrado");
                 u.Cpf = "96375852307";
-                Validator.ValidateObject(u, validacao, true);
+                Validator.ValidateProperty(u.Cpf, validacao);
                 Assert.IsFalse(false, "Erro de validacao encontrado");
             }
         }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            using (var banco = new LiteDatabase(ConnString))
+            {
+                var usuarios = banco.GetCollection<Usuario>()
+                    .Delete(u => u.CreatedAt == DataCriacaoTestes);
+            }
+        }
     }
+
 }
