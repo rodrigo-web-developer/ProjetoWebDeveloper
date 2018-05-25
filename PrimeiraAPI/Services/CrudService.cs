@@ -46,8 +46,20 @@ namespace PrimeiraAPI.Services
         {
             using (var banco = new LiteDatabase(ConnectionString))
             {
-                banco.GetCollection<T>().Update(model);
-                return model;
+                try
+                {
+                    banco.GetCollection<T>().Update(model);
+                    return model;
+                }
+                catch (Exception ex)
+                {
+                    Mensagens.Add(new Erro
+                    {
+                        Comando = "Update",
+                        Mensagem = ex.Message
+                    });
+                    return null;
+                }
             }
         }
 

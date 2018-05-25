@@ -25,7 +25,7 @@ namespace PrimeiraAPI.Controllers
         {
             /*
              * Verifica se o modelo é valido
-             * validando cada um dos atributos
+             * validando cada uma das propriedades
              * do modelo
              */
             if (ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace PrimeiraAPI.Controllers
             return new JsonResult(Servico.Excluir(id));
         }
 
-        public JsonResult GetById(int id)
+        public virtual JsonResult GetById(int id)
         {
             return new JsonResult(Servico.Retorna(id));
         }

@@ -1,5 +1,4 @@
 ﻿using LiteDB;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrimeiraAPI.Models;
 using System.Linq;
@@ -22,7 +21,7 @@ namespace PrimeiraAPI.Controllers
                 return new JsonResult(cursos);
             }
         }
-        //[Authorize(Roles = "Admin")]
+
         public JsonResult Criar([FromBody] Aluno c)
         {
             if (ModelState.IsValid)

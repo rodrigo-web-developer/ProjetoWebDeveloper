@@ -11,7 +11,7 @@ namespace PrimeiraAPI.Controllers
     public class EventoController : ApiController<Evento>
     {
         public string ConnectionString { get; set; }
-        public EventoController(CrudService<Evento> servico) : base(servico)
+        public EventoController(EventoService servico) : base(servico)
         {
             ConnectionString = servico.ConnectionString;
         }
